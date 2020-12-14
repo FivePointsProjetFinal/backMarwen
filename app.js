@@ -49,6 +49,4 @@ mongoose.connect(mongoDB,{useNewUrlParser:true,useUnifiedTopology:true}).then(
   console.log(err);
 })
 
-
-
 module.exports = app;
