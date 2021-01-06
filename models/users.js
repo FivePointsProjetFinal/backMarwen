@@ -3,9 +3,12 @@ const mongoose =require('mongoose');
 var schema = mongoose.Schema
 
 var userSchema =new schema({
-first_name:{type:String,required :true},
-last_name:{type:String,required :true},
-email:{type:String,required :true},
-todos:[{type:mongoose.Schema.Types.ObjectId, ref:'todo'}]
+firstName : {type:String,required :true},
+lastName : {type:String,required :true},
+telp : {type:String,required :true},
+adresse : {type:String,required :true},
+email  : {type:String,required :true},
+password  : {type:String,required :true},
+roleUser :{type:String,required :true},
 })
 module.exports=mongoose.model('user',userSchema);

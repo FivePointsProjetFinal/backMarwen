@@ -2,23 +2,43 @@ var express = require('express')
 var router = express.Router();
 
 var multer  = require('multer')
-var upload = multer({ dest: 'upload/' })
+
 var Image = require('../models/image');
 
-var app = express()
+const storage = multer.diskStorage({
+destination: function(req, file, cb) {
+  cb(null, './uploads/');
+},
+filename: function(req, file, cb) {
+  cb(null, new Date().toISOString().replace(/:/g, '-') + file.originalname);
+}
+});
+
+const fileFilter = (req, file, cb) => {
+// reject a file
+if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+  cb(null, true);
+} else {
+  cb(null, false);
+}
+};
+
+const upload = multer({
+storage: storage,
+limits: {
+  fileSize: 1024 * 1024 * 5
+},
+fileFilter: fileFilter
+});
+
  
-router.post('/profile', upload.single('image'),(req,res,next)=> {
-  // req.file is the `avatar` file
-  // req.body will hold the text fields, if there were any
-  Image = req.file
-  if (!Image) {
-    const error = new Error('Please upload a file')
-    error.httpStatusCode = 400
-    return next(error)
-  }
-    res.send(Image)
-  
-})
+router.post('/uploadImage',upload.single('image'), async (req,res,next)=>{
+  const image = new Image({
+    image :req.file.path
+  })
+  await image.save()
+  res.json(image)
+  })
  
 
 

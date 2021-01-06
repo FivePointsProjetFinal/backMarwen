@@ -1,12 +1,19 @@
 var express = require('express');
 var router = express.Router();
-
+const jwt = require("jsonwebtoken");
 var User = require('../models/users');
 var Todo = require('../models/todos');
-
+const jwtsecure =require('../jwtsecure/jwt')
 const nodemailer = require("nodemailer");
 
-router.post('/addUser', (req, res, next) => {
+router.post('/addUser',jwtsecure.ensureToken, (req, res, next) => {
+  jwt.verify(req.token,process.env.JWT_KEY,(err,data)=>{
+    if (err) {
+      res.status(401).json({
+        message: "token non valid"
+      })
+    }
+    else{
   const user = new User(req.body)
   user.save().then((u) => {
     console.log("user created");
@@ -17,8 +24,17 @@ router.post('/addUser', (req, res, next) => {
   }).catch(err => {
     console.log(err);
   })
+    }
+  })
 })
-router.get('/allUsers', (req, res, next) => {
+router.get('/allUsers',jwtsecure.ensureToken, (req, res, next) => {
+  jwt.verify(req.token,process.env.JWT_KEY,(err,data)=>{
+    if (err) {
+      res.status(401).json({
+        message: "token non valid"
+      })
+    }
+    else{
   User.find().then((u) => {
     res.status(200).json({
       message: "all users",
@@ -27,9 +43,19 @@ router.get('/allUsers', (req, res, next) => {
   }).catch(err => {
     console.log(err);
   });
+}
+})
 })
 
-router.get('/getUserById/:id', (req, res) => {
+
+router.get('/getUserById/:id',jwtsecure.ensureToken , (req, res) => {
+ jwt.verify(req.token,process.env.JWT_KEY,(err,data)=>{
+if (err) {
+  res.status(401).json({
+    message: "token non valid"
+  })
+}
+else{
   User.findById(req.params.id).then((u) => {
     res.status(200).json({
       message: "all users",
@@ -38,7 +64,12 @@ router.get('/getUserById/:id', (req, res) => {
   }).catch(err => {
     console.log(err);
   });
+}
+ })
+
 })
+
+
 
 router.delete('/deletUser/:id', (req, res, next) => {
   User.deleteOne({ _id: req.params.id }).then(
@@ -57,22 +88,18 @@ router.delete('/deletUser/:id', (req, res, next) => {
 });
 
 router.put('/updateUser/:id', (req, res, next) => {
-  const UpdateUser = new User({
-    _id: req.params.id,
-    first_name: "ghassen",
-    last_name: "abid",
-    adress: "korba"
-  });
-  User.updateOne({ _id: req.params.id }, UpdateUser).then(() => {
+  User.findByIdAndUpdate(req.params.id,req.body).then(()=>
+  {
     res.status(201).json({
       message: "updated successfully!",
     })
-  }).catch((err) => {
+  }).catch((err)=> {
     res.status(400).json({
       error: err
     });
-  });
-})
+  });  
+});
+
 
 router.post('/affictTodoUser/:idUser/:idTodo', (req, res, next) => {
   Todo.findById(req.params.idTodo).then(todo => {
@@ -154,6 +181,8 @@ router.post('/sentMail', (req, res, next) => {
 
   main().catch(console.error);
 });
+
+
   // router.post('/addUser', (req,res,next)=>{
   // console.log(req.body);
   // res.json(req.body);
