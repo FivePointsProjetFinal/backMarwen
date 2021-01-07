@@ -26,6 +26,33 @@ router.post('/addUser',jwtsecure.ensureToken, (req, res, next) => {
   })
     }
   })
+  async function main() {
+
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'marwensghair95@gmail.com',
+        pass: 'marwensghair1995'
+      }
+    });
+    
+    let info = await transporter.sendMail({
+      from: ' <marwensghair95@gmail.com>', // sender address
+      to: req.body.email, // list of receivers
+      subject: "Information de Mon stock ✔", // Subject line
+      text: "Hello?", // plain text body
+      html: " hello <b>"+req.body.firstName+"</b> votre login est <b>"+req.body.email +" </b>votre mot de passe est <b>" +req.body.password+"</b>" , // html body
+    });
+
+    console.log("Message sent: %s", info.messageId);
+    // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+    // Preview only available when sending through an Ethereal account
+    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+  }
+
+  main().catch(console.error);
 })
 router.get('/allUsers',jwtsecure.ensureToken, (req, res, next) => {
   jwt.verify(req.token,process.env.JWT_KEY,(err,data)=>{
