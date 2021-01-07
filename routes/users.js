@@ -32,7 +32,7 @@ router.post('/addUser',jwtsecure.ensureToken, (req, res, next) => {
       service: 'gmail',
       auth: {
         user: 'marwensghair95@gmail.com',
-        pass: 'marwensghair1995'
+        pass: 'YOUR_PASSWORD_hERE'
       }
     });
     
